@@ -1,0 +1,88 @@
+@media (width <= 920px) {
+  .studio-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 0.8fr);
+    gap: 14px;
+  }
+
+  .controls-panel,
+  .monitor-panel,
+  .export-panel {
+    padding: 17px;
+  }
+
+  .panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .preset-control select {
+    width: 100%;
+  }
+}
+
+@media (width <= 720px) {
+  .app-shell {
+    width: min(100% - 32px, 540px);
+  }
+
+  .studio {
+    padding: 38px 0 48px;
+  }
+
+  .intro {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 21px;
+    margin-bottom: 26px;
+  }
+
+  .intro h1 {
+    font-size: clamp(38px, 11vw, 55px);
+  }
+
+  .play-button {
+    width: 100%;
+  }
+
+  .studio-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-heading {
+    align-items: center;
+    flex-direction: row;
+  }
+
+  .preset-control select {
+    width: auto;
+  }
+
+  .page-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    padding: 12px 0;
+  }
+}
+
+@media (width <= 430px) {
+  .controls-panel,
+  .monitor-panel,
+  .export-panel {
+    padding: 15px;
+  }
+
+  .layer-card {
+    padding: 13px;
+  }
+
+  .panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .summary-readout {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 16px;
+  }
+}

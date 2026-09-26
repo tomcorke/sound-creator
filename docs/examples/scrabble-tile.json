@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "name": "Scrabble tile",
+  "tone": {
+    "enabled": true,
+    "waveform": "triangle",
+    "startFrequencyHz": 780,
+    "endFrequencyHz": 260,
+    "sweepMs": 35,
+    "fadeMs": 45,
+    "durationMs": 50,
+    "gain": 0.13
+  },
+  "click": {
+    "enabled": true,
+    "durationMs": 12,
+    "highpassHz": 900,
+    "gain": 0.08
+  }
+}
