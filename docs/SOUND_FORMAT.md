@@ -21,7 +21,7 @@ Sound Creator exports one JSON object per sound. Version 1 stores a name and two
 | `click.highpassHz`      | number  | 200–6000                                 | High-pass filter cutoff.             |
 | `click.gain`            | number  | 0.01–0.25                                | Linear noise level.                  |
 
-The player rejects unsupported versions, missing fields, invalid waveforms, and values outside these ranges. Validate JSON loaded from outside your app with `isSoundSettings` before playback.
+The Zod schema in `src/sound.ts` rejects unsupported versions, extra or missing fields, invalid waveforms, and values outside these ranges. `isSoundSettings` validates imported JSON before playback. The IndexedDB library validates each complete saved record before showing or loading it; invalid records are skipped and reported.
 
 ## Reference player
 
@@ -49,4 +49,4 @@ button?.addEventListener("click", () => {
 - [Vanilla JavaScript example](examples/vanilla.html) loads and plays the example JSON. Run `pnpm dev`, then open `/docs/examples/vanilla.html`.
 - [React button example](examples/react-sound-button.tsx) validates settings and plays them from a click handler.
 
-Both examples import the reference player. Copy `src/sound.ts` into a Vite app or bundle it with your TypeScript app. The JSON file works without React.
+Both examples import the reference player. Copy `src/sound.ts` into a Vite app or bundle it with your TypeScript app, and add the `zod` dependency. The JSON file works without React.

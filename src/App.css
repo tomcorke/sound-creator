@@ -145,7 +145,8 @@
 
 .controls-panel,
 .monitor-panel,
-.export-panel {
+.export-panel,
+.library-panel {
   border: 1px solid #2b3033;
   border-radius: 8px;
   background: #171b1f;

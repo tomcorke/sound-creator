@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react";
 import { AppChrome } from "./features/AppChrome.tsx";
 import { StudioWorkspace } from "./features/StudioWorkspace.tsx";
+import { useSoundLibrary } from "./features/useSoundLibrary.ts";
 import {
   DEFAULT_SOUND,
   playSound,
   PRESETS,
   type ClickSettings,
+  type SoundSettings,
   type ToneSettings,
 } from "./sound.ts";
 import "./App.css";
@@ -16,6 +18,7 @@ function App() {
   const [settings, setSettings] = useState(DEFAULT_SOUND);
   const [playStatus, setPlayStatus] = useState("");
   const [exportStatus, setExportStatus] = useState("");
+  const library = useSoundLibrary();
   const json = useMemo(() => JSON.stringify(settings, null, 2), [settings]);
 
   function updateTone(patch: Partial<ToneSettings>) {
@@ -43,20 +46,24 @@ function App() {
     }
   }
 
+  function loadSavedSound(saved: SoundSettings) {
+    setSettings(structuredClone(saved));
+    setPlayStatus(`Loaded “${saved.name || "Untitled sound"}”.`);
+    setExportStatus("");
+  }
+
   function updateName(name: string) {
     setSettings((current) => ({ ...current, name }));
     setExportStatus("");
   }
 
   function preview() {
-    if (!settings.tone.enabled && !settings.click.enabled) {
-      setPlayStatus("Enable a layer to preview this sound.");
-      return;
-    }
     setPlayStatus(
-      playSound(settings)
-        ? "Playing current settings."
-        : "Web Audio is not available in this browser.",
+      !settings.tone.enabled && !settings.click.enabled
+        ? "Enable a layer to preview this sound."
+        : playSound(settings)
+          ? "Playing current settings."
+          : "Web Audio is not available in this browser.",
     );
   }
 
@@ -97,6 +104,10 @@ function App() {
           json={json}
           playStatus={playStatus}
           exportStatus={exportStatus}
+          savedSounds={library.sounds}
+          libraryStatus={library.status}
+          libraryLoading={library.loading}
+          librarySaving={library.saving}
           onPresetChange={selectPreset}
           onNameChange={updateName}
           onToneChange={updateTone}
@@ -104,6 +115,9 @@ function App() {
           onPreview={preview}
           onCopy={copyJson}
           onDownload={downloadJson}
+          onSaveSound={() => library.save(settings)}
+          onLoadSound={loadSavedSound}
+          onDeleteSound={library.remove}
         />
       </main>
     </AppChrome>

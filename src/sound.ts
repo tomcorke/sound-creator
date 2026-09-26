@@ -1,29 +1,50 @@
-export type Waveform = "sine" | "square" | "sawtooth" | "triangle";
+import { z } from "zod";
 
-export type ToneSettings = {
-  enabled: boolean;
-  waveform: Waveform;
-  startFrequencyHz: number;
-  endFrequencyHz: number;
-  sweepMs: number;
-  fadeMs: number;
-  durationMs: number;
-  gain: number;
-};
+const range = (min: number, max: number) =>
+  z.number().finite().min(min).max(max);
 
-export type ClickSettings = {
-  enabled: boolean;
-  durationMs: number;
-  highpassHz: number;
-  gain: number;
-};
+export const WaveformSchema = z.enum([
+  "sine",
+  "square",
+  "sawtooth",
+  "triangle",
+]);
 
-export type SoundSettings = {
-  version: 1;
-  name: string;
-  tone: ToneSettings;
-  click: ClickSettings;
-};
+export const ToneSettingsSchema = z
+  .object({
+    enabled: z.boolean(),
+    waveform: WaveformSchema,
+    startFrequencyHz: range(100, 1600),
+    endFrequencyHz: range(50, 1600),
+    sweepMs: range(5, 150),
+    fadeMs: range(5, 300),
+    durationMs: range(15, 300),
+    gain: range(0.01, 0.3),
+  })
+  .strict();
+
+export const ClickSettingsSchema = z
+  .object({
+    enabled: z.boolean(),
+    durationMs: range(3, 60),
+    highpassHz: range(200, 6000),
+    gain: range(0.01, 0.25),
+  })
+  .strict();
+
+export const SoundSettingsSchema = z
+  .object({
+    version: z.literal(1),
+    name: z.string().max(48),
+    tone: ToneSettingsSchema,
+    click: ClickSettingsSchema,
+  })
+  .strict();
+
+export type Waveform = z.infer<typeof WaveformSchema>;
+export type ToneSettings = z.infer<typeof ToneSettingsSchema>;
+export type ClickSettings = z.infer<typeof ClickSettingsSchema>;
+export type SoundSettings = z.infer<typeof SoundSettingsSchema>;
 
 export const DEFAULT_SOUND: SoundSettings = {
   version: 1,
@@ -90,29 +111,10 @@ export const PRESETS: Record<string, SoundSettings> = {
   },
 };
 
-const waveforms: Waveform[] = ["sine", "square", "sawtooth", "triangle"];
 let audioContext: AudioContext | undefined;
 
 export function isSoundSettings(value: unknown): value is SoundSettings {
-  if (!isRecord(value) || !isRecord(value.tone) || !isRecord(value.click))
-    return false;
-  return (
-    value.version === 1 &&
-    typeof value.name === "string" &&
-    value.name.length <= 48 &&
-    typeof value.tone.enabled === "boolean" &&
-    waveforms.includes(value.tone.waveform as Waveform) &&
-    isBetween(value.tone.startFrequencyHz, 100, 1600) &&
-    isBetween(value.tone.endFrequencyHz, 50, 1600) &&
-    isBetween(value.tone.sweepMs, 5, 150) &&
-    isBetween(value.tone.fadeMs, 5, 300) &&
-    isBetween(value.tone.durationMs, 15, 300) &&
-    isBetween(value.tone.gain, 0.01, 0.3) &&
-    typeof value.click.enabled === "boolean" &&
-    isBetween(value.click.durationMs, 3, 60) &&
-    isBetween(value.click.highpassHz, 200, 6000) &&
-    isBetween(value.click.gain, 0.01, 0.25)
-  );
+  return SoundSettingsSchema.safeParse(value).success;
 }
 
 export function playSound(settings: SoundSettings): boolean {
@@ -136,19 +138,6 @@ export function playSound(settings: SoundSettings): boolean {
   } catch {
     return false;
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isBetween(value: unknown, min: number, max: number): value is number {
-  return (
-    typeof value === "number" &&
-    Number.isFinite(value) &&
-    value >= min &&
-    value <= max
-  );
 }
 
 function playTone(context: AudioContext, settings: ToneSettings, now: number) {

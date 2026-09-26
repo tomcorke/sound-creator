@@ -4,7 +4,8 @@
 }
 
 .monitor-panel,
-.export-panel {
+.export-panel,
+.library-panel {
   padding: 21px;
 }
 
@@ -202,6 +203,100 @@
 
 .export-status {
   color: #a2aaa3;
+}
+
+.library-copy {
+  margin: 10px 0 12px;
+  color: #9ba39c;
+  font-size: 11px;
+}
+
+.library-save-button {
+  width: 100%;
+  min-height: 38px;
+  border: 1px solid #c6ef7a;
+  border-radius: 4px;
+  color: #17200e;
+  background: #c6ef7a;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.library-save-button:hover {
+  background: #d5f79a;
+}
+
+.library-status,
+.library-empty {
+  min-height: 16px;
+  margin: 10px 0 0;
+  color: #a2aaa3;
+  font-size: 10px;
+}
+
+.library-list {
+  display: grid;
+  max-height: 270px;
+  gap: 8px;
+  overflow-y: auto;
+  margin: 13px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.library-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid #303639;
+  border-radius: 4px;
+  padding: 10px;
+  background: #1c2125;
+}
+
+.library-item-info {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.library-item-info strong {
+  overflow-wrap: anywhere;
+  color: #e5e7e1;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.library-item-info time {
+  color: #838c85;
+  font-size: 9px;
+}
+
+.library-item-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 5px;
+}
+
+.library-load-button,
+.library-delete-button {
+  min-height: 30px;
+  border: 1px solid #444b47;
+  border-radius: 3px;
+  padding: 0 8px;
+  color: #e4e8df;
+  background: #242a29;
+  font-size: 10px;
+}
+
+.library-load-button:hover {
+  border-color: #c6ef7a;
+}
+
+.library-delete-button:hover {
+  border-color: #dc887b;
+  color: #f0b4a8;
 }
 
 .page-footer {

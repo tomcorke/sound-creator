@@ -6,7 +6,8 @@
 
   .controls-panel,
   .monitor-panel,
-  .export-panel {
+  .export-panel,
+  .library-panel {
     padding: 17px;
   }
 
@@ -68,12 +69,26 @@
 @media (width <= 430px) {
   .controls-panel,
   .monitor-panel,
-  .export-panel {
+  .export-panel,
+  .library-panel {
     padding: 15px;
   }
 
   .layer-card {
     padding: 13px;
+  }
+
+  .library-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .library-item-actions {
+    width: 100%;
+  }
+
+  .library-item-actions button {
+    flex: 1;
   }
 
   .panel-heading {

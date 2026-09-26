@@ -1,3 +1,4 @@
+import type { SavedSound } from "../sound-library-schema.ts";
 import {
   PRESETS as settingsPresets,
   type ClickSettings,
@@ -6,6 +7,7 @@ import {
 } from "../sound.ts";
 import { ClickControls } from "./ClickControls.tsx";
 import { ExportPanel } from "./ExportPanel.tsx";
+import { LibraryPanel } from "./LibraryPanel.tsx";
 import { SoundSummary } from "./SoundSummary.tsx";
 import { ToneControls } from "./ToneControls.tsx";
 
@@ -14,6 +16,10 @@ type StudioWorkspaceProps = {
   json: string;
   playStatus: string;
   exportStatus: string;
+  savedSounds: SavedSound[];
+  libraryStatus: string;
+  libraryLoading: boolean;
+  librarySaving: boolean;
   onPresetChange(name: string): void;
   onNameChange(name: string): void;
   onToneChange(patch: Partial<ToneSettings>): void;
@@ -21,6 +27,9 @@ type StudioWorkspaceProps = {
   onPreview(): void;
   onCopy(): void;
   onDownload(): void;
+  onSaveSound(): void;
+  onLoadSound(settings: SoundSettings): void;
+  onDeleteSound(id: string): void;
 };
 
 export function StudioWorkspace({
@@ -28,6 +37,10 @@ export function StudioWorkspace({
   json,
   playStatus,
   exportStatus,
+  savedSounds,
+  libraryStatus,
+  libraryLoading,
+  librarySaving,
   onPresetChange,
   onNameChange,
   onToneChange,
@@ -35,6 +48,9 @@ export function StudioWorkspace({
   onPreview,
   onCopy,
   onDownload,
+  onSaveSound,
+  onLoadSound,
+  onDeleteSound,
 }: StudioWorkspaceProps) {
   return (
     <>
@@ -107,6 +123,15 @@ export function StudioWorkspace({
             status={exportStatus}
             onCopy={onCopy}
             onDownload={onDownload}
+          />
+          <LibraryPanel
+            sounds={savedSounds}
+            status={libraryStatus}
+            loading={libraryLoading}
+            saving={librarySaving}
+            onSave={onSaveSound}
+            onLoad={onLoadSound}
+            onDelete={onDeleteSound}
           />
         </aside>
       </div>
