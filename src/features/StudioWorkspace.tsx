@@ -1,15 +1,14 @@
 import type { SavedSound } from "../sound-library-schema.ts";
 import {
-  PRESETS as settingsPresets,
-  type ClickSettings,
+  MAX_SOUND_LAYERS,
+  type SoundLayer,
   type SoundSettings,
-  type ToneSettings,
 } from "../sound.ts";
-import { ClickControls } from "./ClickControls.tsx";
 import { ExportPanel } from "./ExportPanel.tsx";
+import { LayerEditor } from "./LayerEditor.tsx";
 import { LibraryPanel } from "./LibraryPanel.tsx";
+import { ReferenceAnalyzer } from "./ReferenceAnalyzer.tsx";
 import { SoundSummary } from "./SoundSummary.tsx";
-import { ToneControls } from "./ToneControls.tsx";
 
 type StudioWorkspaceProps = {
   settings: SoundSettings;
@@ -20,10 +19,14 @@ type StudioWorkspaceProps = {
   libraryStatus: string;
   libraryLoading: boolean;
   librarySaving: boolean;
-  onPresetChange(name: string): void;
+  onReset(): void;
   onNameChange(name: string): void;
-  onToneChange(patch: Partial<ToneSettings>): void;
-  onClickChange(patch: Partial<ClickSettings>): void;
+  onLayerChange(id: string, patch: Partial<SoundLayer>): void;
+  onAddLayer(type: SoundLayer["type"]): void;
+  onMoveLayer(id: string, direction: -1 | 1): void;
+  onDuplicateLayer(id: string): void;
+  onRemoveLayer(id: string): void;
+  onApplyAnalysis(layers: SoundLayer[]): void;
   onPreview(): void;
   onCopy(): void;
   onDownload(): void;
@@ -41,10 +44,14 @@ export function StudioWorkspace({
   libraryStatus,
   libraryLoading,
   librarySaving,
-  onPresetChange,
+  onReset,
   onNameChange,
-  onToneChange,
-  onClickChange,
+  onLayerChange,
+  onAddLayer,
+  onMoveLayer,
+  onDuplicateLayer,
+  onRemoveLayer,
+  onApplyAnalysis,
   onPreview,
   onCopy,
   onDownload,
@@ -65,8 +72,8 @@ export function StudioWorkspace({
             <span className="intro-highlight">Keep the settings.</span>
           </h1>
           <p className="intro-copy">
-            Layer a pitched tone with a filtered click. Test it here, then take
-            the JSON into your app.
+            Analyze a reference, build with as many layers as you need, then
+            take the JSON into your app.
           </p>
         </div>
         <button className="play-button" type="button" onClick={onPreview}>
@@ -85,21 +92,9 @@ export function StudioWorkspace({
               <span className="section-index">01 / DESIGN</span>
               <h2>Sound settings</h2>
             </div>
-            <label className="preset-control">
-              <span>Start from</span>
-              <select
-                value=""
-                onChange={(event) => onPresetChange(event.currentTarget.value)}
-                aria-label="Load a starting preset"
-              >
-                <option value="">Choose preset</option>
-                {Object.keys(settingsPresets).map((name) => (
-                  <option key={name} value={name}>
-                    {name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <button className="reset-button" type="button" onClick={onReset}>
+              Reset to Scrabble tile
+            </button>
           </div>
           <label className="name-control">
             <span>Sound name</span>
@@ -111,8 +106,48 @@ export function StudioWorkspace({
               placeholder="Name this sound"
             />
           </label>
-          <ToneControls tone={settings.tone} onChange={onToneChange} />
-          <ClickControls click={settings.click} onChange={onClickChange} />
+          <ReferenceAnalyzer onApply={onApplyAnalysis} />
+          <div className="layer-toolbar">
+            <div>
+              <h3>Layers</h3>
+              <p>
+                {settings.layers.length} / {MAX_SOUND_LAYERS}
+              </p>
+            </div>
+            <div className="layer-add-actions">
+              <button
+                type="button"
+                onClick={() => onAddLayer("oscillator")}
+                disabled={settings.layers.length >= MAX_SOUND_LAYERS}
+              >
+                + Oscillator
+              </button>
+              <button
+                type="button"
+                onClick={() => onAddLayer("noise")}
+                disabled={settings.layers.length >= MAX_SOUND_LAYERS}
+              >
+                + Filtered noise
+              </button>
+            </div>
+          </div>
+          {settings.layers.map((layer, index) => (
+            <LayerEditor
+              key={layer.id}
+              layer={layer}
+              index={index}
+              count={settings.layers.length}
+              onChange={(patch) => onLayerChange(layer.id, patch)}
+              onMove={(direction) => onMoveLayer(layer.id, direction)}
+              onDuplicate={() => onDuplicateLayer(layer.id)}
+              onRemove={() => onRemoveLayer(layer.id)}
+            />
+          ))}
+          {!settings.layers.length && (
+            <p className="empty-layers">
+              Add an oscillator or filtered-noise layer.
+            </p>
+          )}
         </section>
 
         <aside className="output-column">

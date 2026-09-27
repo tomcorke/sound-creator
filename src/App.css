@@ -177,7 +177,6 @@
   letter-spacing: -0.03em;
 }
 
-.preset-control,
 .name-control,
 .select-control {
   display: flex;
@@ -188,7 +187,6 @@
   font-weight: 600;
 }
 
-.preset-control select,
 .name-control input,
 .select-control select {
   min-height: 36px;
@@ -198,10 +196,6 @@
   color: #e2e4df;
   background: #202529;
   font-size: 12px;
-}
-
-.preset-control select {
-  min-width: 140px;
 }
 
 .name-control {

@@ -3,7 +3,7 @@
 ## Project rules
 
 - Use Node.js 22.12+ and pnpm. Keep the registry in `.npmrc` set to `registry.npmjs.org`.
-- Keep the sound settings schema and playback behavior in `src/sound.ts`. Validate every IndexedDB record with Zod through `parseSavedSounds` before using it. When changing the sound format, update `docs/SOUND_FORMAT.md`, its JSON example, and `test/sound.test.mjs` together.
+- Keep sound settings and playback in `src/sound.ts`; keep local file analysis in `src/audio-analysis.ts`. Validate every IndexedDB record with Zod through `parseSavedSounds`, including version migrations. When changing the sound format, update `docs/SOUND_FORMAT.md`, its JSON example, and the relevant tests together.
 - Keep source files within the configured size and function limits. Run `pnpm format:check`, `pnpm test`, `pnpm lint`, `pnpm typecheck`, and `pnpm build` before publishing. Pre-commit hooks run lint-staged on changed files.
 
 ## GitHub Pages

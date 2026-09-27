@@ -1,20 +1,32 @@
 {
-  "version": 1,
+  "version": 2,
   "name": "Scrabble tile",
-  "tone": {
-    "enabled": true,
-    "waveform": "triangle",
-    "startFrequencyHz": 780,
-    "endFrequencyHz": 260,
-    "sweepMs": 35,
-    "fadeMs": 45,
-    "durationMs": 50,
-    "gain": 0.13
-  },
-  "click": {
-    "enabled": true,
-    "durationMs": 12,
-    "highpassHz": 900,
-    "gain": 0.08
-  }
+  "layers": [
+    {
+      "id": "scrabble-tone",
+      "type": "oscillator",
+      "delayMs": 0,
+      "enabled": true,
+      "waveform": "triangle",
+      "startFrequencyHz": 780,
+      "endFrequencyHz": 260,
+      "sweepMs": 35,
+      "fadeMs": 45,
+      "durationMs": 50,
+      "gain": 0.13
+    },
+    {
+      "id": "scrabble-click",
+      "type": "noise",
+      "delayMs": 0,
+      "enabled": true,
+      "filterType": "highpass",
+      "filterFrequencyHz": 900,
+      "filterEndFrequencyHz": 900,
+      "attackMs": 0,
+      "fadeMs": 12,
+      "durationMs": 12,
+      "gain": 0.08
+    }
+  ]
 }

@@ -21,12 +21,20 @@ export function useSoundLibrary() {
         const result = await getSavedSounds();
         if (!active) return;
         setSounds(result.sounds);
+        const notices = [
+          result.migratedCount &&
+            !result.migrationFailed &&
+            `Updated ${result.migratedCount} saved sound format${result.migratedCount === 1 ? "" : "s"}.`,
+          result.invalidCount &&
+            `Skipped ${result.invalidCount} invalid saved sound${result.invalidCount === 1 ? "" : "s"}.`,
+          result.migrationFailed &&
+            "Loaded old sounds, but could not update their stored format.",
+        ].filter(Boolean);
         setStatus(
-          result.invalidCount
-            ? `Skipped ${result.invalidCount} invalid saved ${result.invalidCount === 1 ? "sound" : "sounds"}.`
-            : result.sounds.length
+          notices.join(" ") ||
+            (result.sounds.length
               ? `${result.sounds.length} saved ${result.sounds.length === 1 ? "sound" : "sounds"}.`
-              : "No saved sounds yet.",
+              : "No saved sounds yet."),
         );
       } catch {
         if (active) setStatus("Could not read this browser’s sound library.");

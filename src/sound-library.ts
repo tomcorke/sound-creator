@@ -14,7 +14,26 @@ export async function getSavedSounds() {
     "readonly",
     (store) => store.getAll() as IDBRequest<unknown[]>,
   );
-  return parseSavedSounds(records);
+  const result = parseSavedSounds(records);
+  let migrationFailed = false;
+  if (result.migrated.length) {
+    try {
+      await transact("readwrite", (store) => {
+        let request = store.put(result.migrated[0]);
+        for (const sound of result.migrated.slice(1))
+          request = store.put(sound);
+        return request;
+      });
+    } catch {
+      migrationFailed = true;
+    }
+  }
+  return {
+    sounds: result.sounds,
+    invalidCount: result.invalidCount,
+    migratedCount: result.migrated.length,
+    migrationFailed,
+  };
 }
 
 export async function saveSound(settings: SoundSettings): Promise<SavedSound> {
@@ -73,7 +92,6 @@ function transact<T>(
           request.onsuccess = () => {
             result = request.result;
           };
-          request.onerror = () => fail(request.error);
           transaction.oncomplete = () => {
             if (finished) return;
             finished = true;

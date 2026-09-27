@@ -25,7 +25,7 @@ export function AppChrome({ children }: AppChromeProps) {
       </header>
       {children}
       <footer className="page-footer">
-        <span>SYNTHESIZED IN THE BROWSER • SETTINGS EXPORTED AS JSON</span>
+        <span>REFERENCE AUDIO STAYS LOCAL • SETTINGS EXPORTED AS JSON</span>
         <span>Settings update as you edit.</span>
       </footer>
     </div>

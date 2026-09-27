@@ -1,0 +1,155 @@
+.reset-button,
+.layer-add-actions button,
+.layer-order-actions button,
+.analyze-button,
+.apply-analysis-button {
+  min-height: 34px;
+  border: 1px solid #444b47;
+  border-radius: 4px;
+  padding: 0 10px;
+  color: #e4e8df;
+  background: #242a29;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.reference-panel {
+  margin-bottom: 19px;
+  border: 1px solid #303639;
+  border-radius: 6px;
+  padding: 15px;
+  background: #1c2125;
+}
+
+.reference-heading,
+.layer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.reference-heading h3,
+.layer-toolbar h3 {
+  margin: 5px 0 0;
+  color: #e5e7e1;
+  font-size: 13px;
+}
+
+.local-tag {
+  border: 1px solid #454d46;
+  border-radius: 3px;
+  padding: 4px 6px;
+  color: #c6ef7a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 8px;
+}
+
+.reference-copy,
+.layer-toolbar p {
+  margin: 8px 0 12px;
+  color: #9ba39c;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.file-control {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #a6ada7;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.file-control input {
+  width: 100%;
+  color: #aeb6ae;
+  font-size: 10px;
+}
+
+.reference-audio {
+  display: block;
+  width: 100%;
+  height: 38px;
+  margin-top: 12px;
+}
+
+.analyze-button {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.analysis-result {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  border-top: 1px solid #303639;
+  padding-top: 10px;
+}
+
+.analysis-result p,
+.reference-status,
+.empty-layers {
+  margin: 0;
+  color: #a2aaa3;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.apply-analysis-button {
+  border-color: #c6ef7a;
+  color: #17200e;
+  background: #c6ef7a;
+}
+
+.reference-status {
+  margin-top: 9px;
+}
+
+.layer-toolbar {
+  margin: 22px 0 12px;
+}
+
+.layer-toolbar p {
+  margin: 4px 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.layer-add-actions,
+.layer-heading-actions,
+.layer-order-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.layer-add-actions button {
+  min-height: 32px;
+  padding: 0 8px;
+}
+
+.layer-order-actions button {
+  width: 27px;
+  min-height: 27px;
+  padding: 0;
+}
+
+.layer-order-actions button:disabled {
+  opacity: 0.35;
+}
+
+.empty-layers {
+  border: 1px dashed #444b47;
+  border-radius: 5px;
+  padding: 16px;
+  text-align: center;
+}
+
+.reset-button:hover,
+.layer-add-actions button:hover,
+.layer-order-actions button:hover,
+.analyze-button:hover,
+.apply-analysis-button:hover {
+  border-color: #c6ef7a;
+}

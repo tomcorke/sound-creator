@@ -15,10 +15,6 @@
     align-items: flex-start;
     flex-direction: column;
   }
-
-  .preset-control select {
-    width: 100%;
-  }
 }
 
 @media (width <= 720px) {
@@ -54,8 +50,9 @@
     flex-direction: row;
   }
 
-  .preset-control select {
-    width: auto;
+  .layer-heading-actions {
+    align-items: flex-end;
+    flex-direction: column-reverse;
   }
 
   .page-footer {

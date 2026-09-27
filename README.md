@@ -2,7 +2,7 @@
 
 [Open the live app](https://sound-creator.corke.dev/).
 
-Browser editor for short synthesized sounds. Adjust two Web Audio layers, preview them, and export their settings as JSON.
+Browser editor for short synthesized sounds. Analyze a local recording, build a sound from oscillator and filtered-noise layers, preview it, and export settings as JSON.
 
 ## Run locally
 
@@ -17,13 +17,15 @@ Open the local URL printed by Vite. Select **Test sound** after changing setting
 
 ## Sound model
 
-Each sound combines an optional pitched oscillator with an optional filtered noise click. The editor starts with the tile sound from `shared-scrabble-table`. Playback uses the Web Audio API; no audio files are bundled.
+A sound can have up to 64 oscillator and filtered-noise layers, each with its own start delay, pitch or filter, level, duration, and fade. The editor starts with the Scrabble tile sound from `shared-scrabble-table`.
+
+Choose a reference audio file to inspect its RMS envelope and spectral peaks. The browser keeps the file local; it is not uploaded, saved in the library, or included in exported JSON. Analysis suggests settings, not an exact reconstruction. No clips are bundled; built-in references would need permission to redistribute.
 
 See [the settings format and examples](docs/SOUND_FORMAT.md).
 
 ## Library
 
-Saved sounds live in IndexedDB for this browser and site. Zod validates each record when the app loads it. The library does not sync across browsers.
+Saved sounds live in IndexedDB for this browser and site. Zod validates each record when the app loads it and migrates version 1 records to version 2. The library does not sync across browsers.
 
 ## Publish
 
