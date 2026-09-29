@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { analyzeAudioBuffer } from "../src/audio-analysis.ts";
+import { isSoundSettings } from "../src/sound.ts";
 
 function bufferWith(sampleAt, duration = 0.5, sampleRate = 16_384) {
   const length = Math.floor(sampleRate * duration);
@@ -107,17 +108,31 @@ test("keeps broadband double-click references free of oscillator layers", () => 
   );
   const noiseLayers = result.layers.filter((layer) => layer.type === "noise");
   assert.deepEqual(
-    noiseLayers.map((layer) => layer.delayMs),
+    [...new Set(noiseLayers.map((layer) => layer.delayMs))],
     [50, 185],
   );
-  assert.deepEqual(
-    noiseLayers.map((layer) => layer.durationMs),
-    result.events.map((event) => event.durationMs),
+  for (const event of result.events) {
+    const layers = noiseLayers.filter(
+      (layer) => layer.delayMs === event.delayMs,
+    );
+    assert.ok(layers.length > 0 && layers.length <= 6);
+    assert.ok(layers.every((layer) => layer.durationMs === event.durationMs));
+  }
+  assert.ok(
+    Math.max(
+      ...noiseLayers
+        .filter((layer) => layer.delayMs === 185)
+        .map((layer) => layer.gain),
+    ) >
+      Math.max(
+        ...noiseLayers
+          .filter((layer) => layer.delayMs === 50)
+          .map((layer) => layer.gain),
+      ),
   );
-  assert.ok(noiseLayers[1].gain > noiseLayers[0].gain);
 });
 
-test("colors broadband impacts around persistent resonances, not the high end", () => {
+test("retains impact resonances without discarding their broadband component", () => {
   const result = analyzeAudioBuffer(
     bufferWith((time, index) => {
       const elapsed = time - 0.1;
@@ -133,8 +148,18 @@ test("colors broadband impacts around persistent resonances, not the high end", 
   const noise = result.layers.find((layer) => layer.type === "noise");
 
   assert.ok(noise);
-  assert.equal(noise.filterType, "bandpass");
-  assert.ok(Math.abs(noise.filterFrequencyHz - 1350) < 300);
+  assert.ok(
+    result.layers.some((layer) =>
+      layer.type === "oscillator"
+        ? Math.abs(layer.startFrequencyHz - 1350) < 30
+        : Math.abs(layer.filterFrequencyHz - 1350) < 300,
+    ),
+  );
+  assert.ok(
+    result.layers.some(
+      (layer) => layer.type === "noise" && layer.filterFrequencyHz >= 4000,
+    ),
+  );
 });
 
 test("captures the attack and spectral sweep of a broadband slide", () => {
@@ -170,6 +195,118 @@ test("captures the attack and spectral sweep of a broadband slide", () => {
   assert.ok(slide.attackMs >= 30);
   assert.ok(slide.filterEndFrequencyHz < slide.filterFrequencyHz);
   assert.ok(slide.durationMs >= 100);
+});
+
+test("does not mistake band-limited broadband noise for pitched ringing", () => {
+  const filtered = [0, 0, 0, 0];
+  const result = analyzeAudioBuffer(
+    bufferWith(
+      (time, index) => {
+        const value = Math.sin(index * 12.9898) * 43_758.5453;
+        let noise = (value - Math.floor(value)) * 2 - 1;
+        for (let stage = 0; stage < filtered.length; stage++) {
+          filtered[stage] += 0.2 * (noise - filtered[stage]);
+          noise = filtered[stage];
+        }
+        return 0.04 * noise * Math.exp(-time * 20);
+      },
+      0.2,
+      48_000,
+    ),
+  );
+  assert.ok(result.layers.length > 0);
+  assert.ok(result.layers.every((layer) => layer.type === "noise"));
+  assert.ok(
+    isSoundSettings({
+      version: 2,
+      name: "Band limited",
+      layers: result.layers,
+    }),
+  );
+});
+
+test("detects contacts that arrive before the preceding decay ends", () => {
+  const result = analyzeAudioBuffer(
+    bufferWith(
+      (time, index) => {
+        const value = Math.sin(index * 12.9898) * 43_758.5453;
+        const noise = (value - Math.floor(value)) * 2 - 1;
+        return [0.045, 0.065, 0.13].reduce((sum, onset, strike) => {
+          const elapsed = time - onset;
+          return elapsed < 0
+            ? sum
+            : sum +
+                [0.015, 0.08, 0.04][strike] * noise * Math.exp(-elapsed * 45);
+        }, 0);
+      },
+      0.2,
+      24_000,
+    ),
+  );
+
+  for (const onset of [45, 65, 130])
+    assert.ok(
+      result.events.some((event) => Math.abs(event.delayMs - onset) <= 5),
+    );
+  assert.ok(
+    isSoundSettings({ version: 2, name: "Contacts", layers: result.layers }),
+  );
+});
+
+test("fits quiet recordings without a gain floor and retains their envelope", () => {
+  const analyze = (level) =>
+    analyzeAudioBuffer(
+      bufferWith(
+        (time, index) => {
+          const value = Math.sin(index * 12.9898) * 43_758.5453;
+          const noise = (value - Math.floor(value)) * 2 - 1;
+          return time < 0.05
+            ? 0
+            : level * noise * Math.exp(-(time - 0.05) * 25);
+        },
+        0.2,
+        24_000,
+      ),
+    );
+  const loud = analyze(0.04);
+  const quiet = analyze(0.004);
+  assert.equal(quiet.layers.length, loud.layers.length);
+  quiet.layers.forEach((layer, index) => {
+    assert.ok(Math.abs(layer.gain / loud.layers[index].gain - 0.1) < 0.01);
+    assert.ok(layer.envelope.length > 2);
+    assert.equal(layer.envelope.at(-1), 0);
+  });
+  assert.ok(
+    isSoundSettings({ version: 2, name: "Quiet", layers: quiet.layers }),
+  );
+});
+
+test("retains high pitched ringing together with broadband noise", () => {
+  const result = analyzeAudioBuffer(
+    bufferWith(
+      (time, index) => {
+        const value = Math.sin(index * 12.9898) * 43_758.5453;
+        const noise = (value - Math.floor(value)) * 2 - 1;
+        return (
+          (0.04 * noise + 0.08 * Math.sin(2 * Math.PI * 4400 * time)) *
+          Math.exp(-time * 15)
+        );
+      },
+      0.2,
+      24_000,
+    ),
+  );
+  assert.ok(result.layers.some((layer) => layer.type === "noise"));
+  assert.ok(
+    result.layers.some(
+      (layer) =>
+        layer.type === "oscillator" &&
+        Math.abs(layer.startFrequencyHz - 4400) < 30,
+    ),
+  );
+  assert.ok(
+    isSoundSettings({ version: 2, name: "Ring", layers: result.layers }),
+  );
 });
 
 test("suggests filtered noise for a broadband reference", () => {

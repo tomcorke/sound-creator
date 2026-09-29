@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "name": "Envelope impact",
+  "layers": [
+    {
+      "id": "impact-noise",
+      "type": "noise",
+      "delayMs": 50,
+      "enabled": true,
+      "filterType": "bandpass",
+      "filterFrequencyHz": 4000,
+      "fadeMs": 75,
+      "durationMs": 75,
+      "gain": 0.02,
+      "envelope": [0.8, 1, 0.4, 0.25, 0.18, 0.12, 0.08, 0.03, 0]
+    },
+    {
+      "id": "impact-ring",
+      "type": "oscillator",
+      "delayMs": 50,
+      "enabled": true,
+      "waveform": "sine",
+      "startFrequencyHz": 4400,
+      "endFrequencyHz": 4400,
+      "sweepMs": 35,
+      "fadeMs": 75,
+      "durationMs": 75,
+      "gain": 0.0008,
+      "envelope": [0.8, 1, 0.4, 0.25, 0.18, 0.12, 0.08, 0.03, 0]
+    }
+  ]
+}

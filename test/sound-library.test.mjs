@@ -41,7 +41,19 @@ test("validates, migrates, and sorts saved sounds", () => {
   const newer = {
     id: "00000000-0000-4000-8000-000000000002",
     savedAt: 200,
-    settings: { ...DEFAULT_SOUND, name: "Newer sound" },
+    settings: {
+      ...DEFAULT_SOUND,
+      name: "Newer sound",
+      layers: [
+        {
+          ...DEFAULT_SOUND.layers[0],
+          startFrequencyHz: 4400,
+          endFrequencyHz: 4400,
+          gain: 0.0008,
+          envelope: [1, 0.3, 0],
+        },
+      ],
+    },
   };
   const invalid = {
     ...newer,
@@ -58,6 +70,11 @@ test("validates, migrates, and sorts saved sounds", () => {
     result.sounds.map((sound) => sound.settings.name),
     ["Newer sound", "Old format", "Older sound"],
   );
+  assert.deepEqual(result.sounds[0].settings.layers[0].envelope, [1, 0.3, 0]);
+  assert.equal(result.sounds[0].settings.layers[0].gain, 0.0008);
+  const malformedEnvelope = structuredClone(newer);
+  malformedEnvelope.settings.layers[0].envelope = [1, Infinity];
+  assert.equal(parseSavedSounds([malformedEnvelope]).invalidCount, 1);
   assert.equal(result.sounds[1].settings.version, 2);
   assert.equal(result.sounds[1].settings.layers[1].type, "noise");
   assert.equal(result.sounds[2].settings.layers[0].delayMs, 0);

@@ -1,5 +1,6 @@
 import {
   MAX_SOUND_LAYERS,
+  MAX_FREQUENCY_HZ,
   type FilterType,
   type OscillatorLayer,
   type SoundLayer,
@@ -101,6 +102,17 @@ export function LayerEditor({
           </label>
         </div>
       </div>
+      {layer.envelope && (
+        <p>
+          Measured envelope ({layer.envelope.length} points).{" "}
+          <button
+            type="button"
+            onClick={onChange.bind(null, { envelope: undefined })}
+          >
+            Use manual fade
+          </button>
+        </p>
+      )}
       <div className="layer-fields">
         {oscillator ? (
           <>
@@ -123,7 +135,7 @@ export function LayerEditor({
               label="Start pitch"
               value={layer.startFrequencyHz}
               min={100}
-              max={1600}
+              max={MAX_FREQUENCY_HZ}
               step={10}
               display={`${layer.startFrequencyHz} Hz`}
               onChange={(startFrequencyHz) => onChange({ startFrequencyHz })}
@@ -132,7 +144,7 @@ export function LayerEditor({
               label="End pitch"
               value={layer.endFrequencyHz}
               min={50}
-              max={1600}
+              max={MAX_FREQUENCY_HZ}
               step={10}
               display={`${layer.endFrequencyHz} Hz`}
               onChange={(endFrequencyHz) => onChange({ endFrequencyHz })}
@@ -146,15 +158,17 @@ export function LayerEditor({
               display={`${layer.sweepMs} ms`}
               onChange={(sweepMs) => onChange({ sweepMs })}
             />
-            <RangeControl
-              label="Fade time"
-              value={layer.fadeMs}
-              min={5}
-              max={2000}
-              step={5}
-              display={`${layer.fadeMs} ms`}
-              onChange={(fadeMs) => onChange({ fadeMs })}
-            />
+            {!layer.envelope && (
+              <RangeControl
+                label="Fade time"
+                value={layer.fadeMs}
+                min={5}
+                max={2000}
+                step={5}
+                display={`${layer.fadeMs} ms`}
+                onChange={(fadeMs) => onChange({ fadeMs })}
+              />
+            )}
             <RangeControl
               label="Duration"
               value={layer.durationMs}
@@ -188,7 +202,7 @@ export function LayerEditor({
               label="Filter frequency"
               value={layer.filterFrequencyHz}
               min={200}
-              max={6000}
+              max={MAX_FREQUENCY_HZ}
               step={50}
               display={`${layer.filterFrequencyHz} Hz`}
               onChange={(filterFrequencyHz) => onChange({ filterFrequencyHz })}
@@ -197,31 +211,35 @@ export function LayerEditor({
               label="Filter end frequency"
               value={layer.filterEndFrequencyHz ?? layer.filterFrequencyHz}
               min={200}
-              max={6000}
+              max={MAX_FREQUENCY_HZ}
               step={50}
               display={`${layer.filterEndFrequencyHz ?? layer.filterFrequencyHz} Hz`}
               onChange={(filterEndFrequencyHz) =>
                 onChange({ filterEndFrequencyHz })
               }
             />
-            <RangeControl
-              label="Attack time"
-              value={layer.attackMs ?? 0}
-              min={0}
-              max={2000}
-              step={5}
-              display={`${layer.attackMs ?? 0} ms`}
-              onChange={(attackMs) => onChange({ attackMs })}
-            />
-            <RangeControl
-              label="Fade time"
-              value={layer.fadeMs}
-              min={3}
-              max={2000}
-              step={5}
-              display={`${layer.fadeMs} ms`}
-              onChange={(fadeMs) => onChange({ fadeMs })}
-            />
+            {!layer.envelope && (
+              <>
+                <RangeControl
+                  label="Attack time"
+                  value={layer.attackMs ?? 0}
+                  min={0}
+                  max={2000}
+                  step={5}
+                  display={`${layer.attackMs ?? 0} ms`}
+                  onChange={(attackMs) => onChange({ attackMs })}
+                />
+                <RangeControl
+                  label="Fade time"
+                  value={layer.fadeMs}
+                  min={3}
+                  max={2000}
+                  step={5}
+                  display={`${layer.fadeMs} ms`}
+                  onChange={(fadeMs) => onChange({ fadeMs })}
+                />
+              </>
+            )}
             <RangeControl
               label="Duration"
               value={layer.durationMs}
@@ -245,10 +263,10 @@ export function LayerEditor({
         <RangeControl
           label="Level"
           value={layer.gain}
-          min={0.01}
+          min={0.00001}
           max={0.3}
-          step={0.01}
-          display={`${Math.round(layer.gain * 100)}%`}
+          step={0.00001}
+          display={`${Number((layer.gain * 100).toFixed(3))}%`}
           onChange={(gain) => onChange({ gain })}
         />
       </div>

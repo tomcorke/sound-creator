@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { readFile } from "node:fs/promises";
 import {
   DEFAULT_SOUND,
+  SOUND_SAMPLE_RATE,
   isSoundSettings,
   migrateSoundSettings,
   playSound,
@@ -80,7 +82,8 @@ class FakeAudioContext {
   }
 
   createBuffer(_channels, length) {
-    return { getChannelData: () => new Float32Array(length) };
+    const samples = new Float32Array(length);
+    return { getChannelData: () => samples };
   }
 }
 
@@ -91,7 +94,8 @@ test("plays every enabled layer and skips disabled layers", () => {
     configurable: true,
     value: {
       AudioContext: class {
-        constructor() {
+        constructor(options) {
+          assert.equal(options.sampleRate, SOUND_SAMPLE_RATE);
           return context;
         }
       },
@@ -170,9 +174,85 @@ test("plays every enabled layer and skips disabled layers", () => {
     );
     assert.equal(context.nodes.filter((node) => node.starts).length, 3);
   } finally {
+    context.state = "closed";
     if (previousWindow)
       Object.defineProperty(globalThis, "window", previousWindow);
     else delete globalThis.window;
+  }
+});
+
+test("plays measured envelopes without adding a second noise fade", () => {
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const previousRandom = Math.random;
+  const context = new FakeAudioContext();
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: {
+      AudioContext: class {
+        constructor() {
+          return context;
+        }
+      },
+    },
+  });
+  Math.random = () => 0.75;
+  try {
+    const settings = structuredClone(DEFAULT_SOUND);
+    for (const layer of settings.layers) {
+      layer.envelope = [0, 1, 0.5, 0];
+      layer.gain = 0.002;
+      layer.durationMs = 60;
+      layer.delayMs = 100;
+    }
+    assert.equal(playSound(settings), true);
+    for (const gain of context.nodes.filter((node) => node.gain.events.length))
+      assert.deepEqual(gain.gain.events, [
+        ["set", 0, 2.1],
+        ["linear", 0.002, 2.12],
+        ["linear", 0.001, 2.14],
+        ["linear", 0, 2.16],
+      ]);
+    const source = context.nodes.find((node) => node.buffer);
+    assert.ok(
+      source.buffer.getChannelData(0).every((sample) => sample === 0.5),
+    );
+    assert.deepEqual(source.stops, [2.16]);
+    delete settings.layers[0].envelope;
+    context.nodes.length = 0;
+    assert.equal(
+      playSound({ ...settings, layers: [settings.layers[0]] }),
+      true,
+    );
+    const fade = context.nodes.find((node) => node.gain.events.length);
+    assert.ok(fade.gain.events.at(-1)[1] < settings.layers[0].gain);
+  } finally {
+    context.state = "closed";
+    Math.random = previousRandom;
+    if (previousWindow)
+      Object.defineProperty(globalThis, "window", previousWindow);
+    else delete globalThis.window;
+  }
+});
+
+test("validates exported examples and rejects invalid measured envelopes", async () => {
+  for (const name of ["scrabble-tile", "analyzed-impact"]) {
+    const json = await readFile(
+      new URL(`../docs/examples/${name}.json`, import.meta.url),
+      "utf8",
+    );
+    assert.equal(isSoundSettings(JSON.parse(json)), true);
+  }
+  for (const envelope of [
+    [1],
+    new Array(402).fill(1),
+    [0, 1.1],
+    [-0.1, 0],
+    [0, NaN],
+    "invalid",
+  ]) {
+    const settings = structuredClone(DEFAULT_SOUND);
+    settings.layers[0].envelope = envelope;
+    assert.equal(isSoundSettings(settings), false);
   }
 });
 

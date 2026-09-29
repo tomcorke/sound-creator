@@ -17,9 +17,9 @@ Open the local URL printed by Vite. Select **Test sound** after changing setting
 
 ## Sound model
 
-A sound can have up to 64 oscillator and filtered-noise layers, each with its own start delay, pitch or filter, level, duration, and fade. The editor starts with the Scrabble tile sound from `shared-scrabble-table`.
+A sound can have up to 64 oscillator and filtered-noise layers, each with its own start delay, pitch or filter, level, duration, and fade or measured envelope. The editor starts with the Scrabble tile sound from `shared-scrabble-table`.
 
-Choose a reference audio file to inspect its RMS envelope and spectral peaks. The browser keeps the file local; it is not uploaded, saved in the library, or included in exported JSON. Analysis suggests settings, not an exact reconstruction. No clips are bundled; built-in references would need permission to redistribute.
+Choose a reference audio file to inspect its RMS envelope and spectral peaks. The browser keeps the file local; it is not uploaded, saved in the library, or included in exported JSON. Analysis fits contact timing, spectral power, and measured envelopes. It remains a synthesized approximation; see [the analysis review](docs/ANALYSIS_REVIEW.md). No clips are bundled; built-in references would need permission to redistribute.
 
 See [the settings format and examples](docs/SOUND_FORMAT.md).
 
