@@ -28,7 +28,7 @@ type StudioWorkspaceProps = {
   onRemoveLayer(id: string): void;
   onApplyAnalysis(layers: SoundLayer[]): void;
   onPreview(): void;
-  onCopy(): void;
+  onCopy(text: string, label: string): void;
   onDownload(): void;
   onSaveSound(): void;
   onLoadSound(settings: SoundSettings): void;

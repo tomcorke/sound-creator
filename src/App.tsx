@@ -16,13 +16,13 @@ function App() {
     [editor.settings],
   );
 
-  async function copyJson() {
+  async function copyText(text: string, label: string) {
     try {
-      await navigator.clipboard.writeText(json);
-      editor.setExportStatus("JSON copied to clipboard.");
+      await navigator.clipboard.writeText(text);
+      editor.setExportStatus(`${label} copied to clipboard.`);
     } catch {
       editor.setExportStatus(
-        "Clipboard unavailable. Select the JSON above to copy it.",
+        `Clipboard unavailable. Select the ${label} above to copy it.`,
       );
     }
   }
@@ -66,7 +66,7 @@ function App() {
           onRemoveLayer={editor.removeLayer}
           onApplyAnalysis={editor.applyLayers}
           onPreview={editor.preview}
-          onCopy={() => void copyJson()}
+          onCopy={(text, label) => void copyText(text, label)}
           onDownload={downloadJson}
           onSaveSound={() => library.save(editor.settings)}
           onLoadSound={editor.load}

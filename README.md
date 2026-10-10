@@ -13,7 +13,7 @@ pnpm install
 pnpm dev
 ```
 
-Open the local URL printed by Vite. Select **Test sound** after changing settings. Use **Copy JSON** or **Download .json** to export the current sound.
+Open the local URL printed by Vite. Select **Test sound** after changing settings. Use **Copy JSON** or **Download .json** to export the current sound. Expand **Instructions for a coding agent** to copy a prompt that includes the JSON and points an agent to the format docs, reference player, and examples in this repository.
 
 ## Sound model
 
