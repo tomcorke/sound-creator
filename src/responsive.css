@@ -41,6 +41,10 @@
     width: 100%;
   }
 
+  .intro .play-button {
+    display: inline-flex;
+  }
+
   .studio-grid {
     grid-template-columns: 1fr;
   }
