@@ -45,6 +45,16 @@
     grid-template-columns: 1fr;
   }
 
+  .output-column {
+    position: static;
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  .output-play {
+    display: none;
+  }
+
   .panel-heading {
     align-items: center;
     flex-direction: row;

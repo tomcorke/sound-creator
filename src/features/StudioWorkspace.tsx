@@ -151,6 +151,16 @@ export function StudioWorkspace({
         </section>
 
         <aside className="output-column">
+          <button
+            className="play-button output-play"
+            type="button"
+            onClick={onPreview}
+          >
+            <span className="play-icon" aria-hidden="true">
+              ▶
+            </span>
+            Test sound
+          </button>
           <SoundSummary settings={settings} status={playStatus} />
           <ExportPanel
             settings={settings}

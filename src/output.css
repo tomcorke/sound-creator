@@ -1,6 +1,20 @@
 .output-column {
+  position: sticky;
+  top: 16px;
   display: grid;
+  max-height: calc(100vh - 32px);
   gap: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.output-play {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  width: 100%;
+  box-shadow: 0 8px 16px rgb(0 0 0 / 35%);
 }
 
 .monitor-panel,
